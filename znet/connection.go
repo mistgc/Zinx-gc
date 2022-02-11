@@ -17,21 +17,21 @@ type Connection struct {
 	// Current connection stutas
 	isClosed bool
 
-	// Mathod of processing business to which the current connection is bound.
-	handleAPI ziface.HandleFunc
-
 	// Channel that tells the current connection that it has exited or stopped.
 	ExitChan chan bool
+
+	// Router of current connection for processing business
+	Router ziface.IRouter
 }
 
 // Initialize the mathod of connection module
-func NewConnection(conn *net.TCPConn, connID uint32, callbackAPI ziface.HandleFunc) *Connection {
+func NewConnection(conn *net.TCPConn, connID uint32, router ziface.IRouter) *Connection {
 	c := &Connection{
 		Conn: conn,
 		ConnID: connID,
-		handleAPI: callbackAPI,
 		isClosed: false,
 		ExitChan: make(chan bool, 1),
+		Router: router,
 	}
 
 	return c
@@ -47,17 +47,22 @@ func (c *Connection) StartReader(){
 	for {
 		// Read the data from client to the buffer. MaxSize = 512 Byte
 		buf := make([]byte, 512)
-		cnt, err := c.Conn.Read(buf)
+		_, err := c.Conn.Read(buf)
 		if err != nil {
 			fmt.Println("Receive buffer error ", err)
 			continue
 		}
 
-		// Call the 'HandleAPI' to which the current connection is bound.
-		if err := c.handleAPI(c.Conn, buf, cnt); err != nil {
-			fmt.Println("ConnID = ", c.ConnID, " handle is error ", err)
-			break
+		req := Request {
+			conn: c,
+			data: buf,
 		}
+		
+		go func(request ziface.IRequset){
+			c.Router.PreHandle(request)
+			c.Router.Handle(request)
+			c.Router.PostHandle(request)
+		}(&req)
 	}
 }
 
@@ -91,7 +96,7 @@ func (c *Connection) Stop() {
 }
 
 // Get the socket to which the current connection is bound.
-func (c *Connection) GetConnection() *net.TCPConn {
+func (c *Connection) GetTCPConnection() *net.TCPConn {
 	return c.Conn
 }
 
@@ -106,6 +111,6 @@ func (c *Connection) RemoteAddr() net.Addr {
 }
 
 // Send data to the client.
-// func (c *Connection) Send(data []byte) error {
-// 	
-// }
+func (c *Connection) Send(data []byte) error {
+	return nil
+}

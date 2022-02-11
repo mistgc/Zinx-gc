@@ -13,7 +13,7 @@ type IConnection interface {
 	Stop()
 
 	// Get the socket to which the current connection is bound.
-	GetConnection() *net.TCPConn
+	GetTCPConnection() *net.TCPConn
 
 	// Get the ID of the current connection module.
 	GetConnID() uint32
@@ -25,15 +25,5 @@ type IConnection interface {
 	Send(data []byte) error
 }
 
-// Defines a mathod to handle the connection business.
+// Defines a method to handle the connection business.
 type HandleFunc func(*net.TCPConn, []byte, int) error
-
-
-
-
-
-
-
-
-
-

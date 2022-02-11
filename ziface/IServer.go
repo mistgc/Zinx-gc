@@ -1,10 +1,15 @@
 package ziface
 
 type IServer interface {
-	// 启动服务器
+	// Start server
 	Start()
-	// 停止服务器
+
+	// Stop server
 	Stop()
-	// 运行服务器
+
+	// Run server
 	Serve()
+
+	// Register a router for client connection to handle business
+	AddRouter(router IRouter)
 }
