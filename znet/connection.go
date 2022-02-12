@@ -3,7 +3,9 @@ package znet
 import (
 	"fmt"
 	"net"
+
 	"Zinx/ziface"
+	"Zinx/utils"
 )
 
 // Connection module
@@ -45,8 +47,8 @@ func (c *Connection) StartReader(){
 	defer c.Stop()
 
 	for {
-		// Read the data from client to the buffer. MaxSize = 512 Byte
-		buf := make([]byte, 512)
+		// Read the data from client to the buffer. MaxSize = utils.GlobalObject.MaxPackageSize bytes.
+		buf := make([]byte, utils.GlobalObject.MaxPackageSize)
 		_, err := c.Conn.Read(buf)
 		if err != nil {
 			fmt.Println("Receive buffer error ", err)

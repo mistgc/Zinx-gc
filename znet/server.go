@@ -4,6 +4,7 @@ import (
 	"Zinx/ziface"
 	"fmt"
 	"net"
+	"Zinx/utils"
 )
 
 // iServer的接口实现，定义一个Server的服务器模块
@@ -26,7 +27,16 @@ type Server struct {
 
 // 服务器启动
 func (s *Server) Start() {
-	fmt.Printf("[Start] Server Listenner at IP :%s, Port :%d, is starting\n", s.IP, s.Port)
+	fmt.Printf("[Zinx] Server name: %s, listenner at IP: %s, Port: %d is starting...\n",
+		utils.GlobalObject.Name, 
+		utils.GlobalObject.Host,
+		utils.GlobalObject.TcpPort,
+	)
+	fmt.Printf("[Zinx] Version %s, MaxConn: %d, MaxPackageSize: %d",
+		utils.GlobalObject.Version,
+		utils.GlobalObject.MaxConn,
+		utils.GlobalObject.MaxPackageSize,
+	)
 
 	go func(){
 		// 1.Get an Addr of TCP.
@@ -91,10 +101,10 @@ func (s *Server) AddRouter(router ziface.IRouter) {
 // 初始化Server模块
 func NewServer(name string) ziface.IServer {
 	s := &Server{
-		Name:      name,
+		Name:      utils.GlobalObject.Name,
 		IPVersion: "tcp4",
-		IP:        "0.0.0.0",
-		Port:      8999,
+		IP:        utils.GlobalObject.Host,
+		Port:      utils.GlobalObject.TcpPort,
 		Router:	   nil,
 	}
 
